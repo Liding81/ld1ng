@@ -27,8 +27,9 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190831142407693.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FsZXhZb3VuZzI4,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200208160601515.gif">
+<meta property="og:image" content="https://i.loli.net/2021/08/22/xzyGeFWMm27wNO4.png">
 <meta property="article:published_time" content="2020-06-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-06-16T14:10:48.292Z">
+<meta property="article:modified_time" content="2021-08-22T13:33:34.839Z">
 <meta property="article:author" content="Ld1ng">
 <meta property="article:tag" content="KNOWLEDGE">
 <meta name="twitter:card" content="summary">
@@ -461,7 +462,7 @@
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/06/16/GOTPLT/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 841(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1k(words)</span>
 	
 	
 		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 3(minutes)</span>
@@ -512,6 +513,16 @@
 <p>最后借用一下大佬的动图：</p>
 <p><img src="https://img-blog.csdnimg.cn/20200208160601515.gif" alt="在这里插入图片描述" /></p>
 <hr />
+<p>补充一下：</p>
+<ol>
+<li>dl_runtime_resolve 需要两个参数，一个是 reloc_arg，就是函数自己的 plt 表项 push 的内容，一个是link_map，这个是公共 plt 表项 push 进栈的，通过它可以找到.dynamic的地址</li>
+<li>而 .dynamic 可以找到 .dynstr、.dynsym、.rel.plt 的这些东西的地址</li>
+<li>.rel.plt 的地址加上 reloc_arg 可以得到函数重定位表项 Elf32_Rel 的指针，这个指针对应的里面放着 r_offset、r_info</li>
+<li>将 r_info&gt;&gt;8 得到的就是 .dynsym 的下标，这个下标的内容就是 name_offset</li>
+<li>.dynstr+name_offset 得到的就是 st_name，而 st_name 存放的就是要调用函数的函数名</li>
+<li>在动态链接库里面找这个函数的地址，赋值给 *rel-&gt;r_offset，也就是 GOT 表就完成了一次函数的动态链接</li>
+</ol>
+<p><img src="https://i.loli.net/2021/08/22/xzyGeFWMm27wNO4.png" alt="image-20210822212347908" /></p>
 
       
     </div>
