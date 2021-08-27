@@ -21,7 +21,7 @@
   <meta name="description" content="前言 话说前几天18级re选手被张老师公开批斗… 嗯…从今天起每天一道题尽量抽出时间多做做题。 那么好，就从pwn的高手进阶区开始！   0x00 level3 本来是一个新手区的题，但我发现这题没做，其实不难，只是记录一下在已给libc的情况下exp的规范写法 程序代码： 123456int __cdecl main(int argc, const char **argv, const cha">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ADWorld_PWN  (updating..)">
-<meta property="og:url" content="http://ld1ng.com/2020/07/24/ADWorld-pwn/index.html">
+<meta property="og:url" content="http://ld1ng.github.io/2020/07/24/ADWorld-pwn/index.html">
 <meta property="og:site_name" content="Ld1ng">
 <meta property="og:description" content="前言 话说前几天18级re选手被张老师公开批斗… 嗯…从今天起每天一道题尽量抽出时间多做做题。 那么好，就从pwn的高手进阶区开始！   0x00 level3 本来是一个新手区的题，但我发现这题没做，其实不难，只是记录一下在已给libc的情况下exp的规范写法 程序代码： 123456int __cdecl main(int argc, const char **argv, const cha">
 <meta property="og:locale" content="en_US">
@@ -62,7 +62,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2020/06/02/tgAR9TQ2uZlKGI8.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://ld1ng.com/2020/07/24/ADWorld-pwn/index.html">
+  <link rel="canonical" href="http://ld1ng.github.io/2020/07/24/ADWorld-pwn/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Ld1ng" type="application/atom+xml">
   
@@ -743,7 +743,7 @@ fmtstr_payload函数返回的就是payload</p>
 <p>结束…</p>
 <hr />
 <h2 id="0x0a-pwn-200"><a class="markdownIt-Anchor" href="#0x0a-pwn-200"></a> 0x0A pwn-200</h2>
-<p>阿西吧，好水…几乎和<a href="http://ld1ng.com/2020/07/24/ADWorld-pwn/#0x00-level3">level3</a>一样，</p>
+<p>阿西吧，好水…几乎和<a href="http://ld1ng.com/2020/07/24/ADWorld-pwn/#0x00-level3" target="_blank" rel="noopener">level3</a>一样，</p>
 <p>只用到了这一个read函数，简单栈溢出。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">sub_8048484</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [esp+1Ch] [ebp-6Ch]</span></span><br><span class="line"></span><br><span class="line">  setbuf(<span class="built_in">stdin</span>, &amp;buf);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x100</span>u);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>通过泄露write函数got，计算libc基址，然后rop getshell。</p>
@@ -823,7 +823,7 @@ C 库函数 <code>char *getenv(const char *name)</code> 搜索 name 所指向的
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://ld1ng.com/2020/07/24/ADWorld-pwn/" title="ADWorld_PWN  (updating..)">http://ld1ng.com/2020/07/24/ADWorld-pwn/</a>
+      <a href="http://ld1ng.github.io/2020/07/24/ADWorld-pwn/" title="ADWorld_PWN  (updating..)">http://ld1ng.github.io/2020/07/24/ADWorld-pwn/</a>
     </li>
     
     <li class="post-copyright-license">

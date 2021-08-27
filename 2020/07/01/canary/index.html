@@ -21,7 +21,7 @@
   <meta name="description" content="0x00 前言 刚开始接触canary，先不谈题目中如何利用，只记一下我对它浅显的理解  2020.7.3 回头看了一遍第五空间的pwn题(twice)，用了canary和栈迁移的知识，正好整合在一起 学了很长时间，终于搞懂了，最近有考试，等考完详细记录一下。  2020.7.16 终于考完试复现一下这道题，中途电脑坏了拿去修，不过还好盘没坏，什么都没丢，万幸万幸~  0x01 canary 什">
 <meta property="og:type" content="article">
 <meta property="og:title" content="学习canary&amp;&amp;栈迁移">
-<meta property="og:url" content="http://ld1ng.com/2020/07/01/canary/index.html">
+<meta property="og:url" content="http://ld1ng.github.io/2020/07/01/canary/index.html">
 <meta property="og:site_name" content="Ld1ng">
 <meta property="og:description" content="0x00 前言 刚开始接触canary，先不谈题目中如何利用，只记一下我对它浅显的理解  2020.7.3 回头看了一遍第五空间的pwn题(twice)，用了canary和栈迁移的知识，正好整合在一起 学了很长时间，终于搞懂了，最近有考试，等考完详细记录一下。  2020.7.16 终于考完试复现一下这道题，中途电脑坏了拿去修，不过还好盘没坏，什么都没丢，万幸万幸~  0x01 canary 什">
 <meta property="og:locale" content="en_US">
@@ -41,7 +41,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2020/07/01/OPEoZQd7nupaBj8.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://ld1ng.com/2020/07/01/canary/index.html">
+  <link rel="canonical" href="http://ld1ng.github.io/2020/07/01/canary/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Ld1ng" type="application/atom+xml">
   
@@ -500,7 +500,7 @@
 <p>当启用栈保护后，函数开始执行的时候会先往栈底插入 cookie 信息，当函数真正返回的时候会验证 cookie 信息是否合法 (栈帧销毁前测试该值是否被改变)，如果不合法就停止程序运行 (栈溢出发生)。</p>
 <p>攻击者在覆盖返回地址的时候往往也会将 cookie 信息给覆盖掉，导致栈保护检查失败而阻止 shellcode 的执行，避免漏洞利用成功。</p>
 <h2 id="0x03-leak-canary"><a class="markdownIt-Anchor" href="#0x03-leak-canary"></a> 0x03 leak canary</h2>
-<p>之前有个题目比较简单<a href="http://ld1ng.com/2020/06/03/ADWorld-pwn/#0x04-Mary-Morton">Mary_Morton</a>，存在明显的格式化字符串漏洞，可以泄露canary的值</p>
+<p>之前有个题目比较简单<a href="http://ld1ng.com/2020/06/03/ADWorld-pwn/#0x04-Mary-Morton" target="_blank" rel="noopener">Mary_Morton</a>，存在明显的格式化字符串漏洞，可以泄露canary的值</p>
 <p>这里讲一下另外一种方法</p>
 <p>为了便于理解，写一个简单的程序自己调一下</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getshell</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    setbuf(<span class="built_in">stdin</span>, <span class="literal">NULL</span>);</span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, <span class="literal">NULL</span>);</span><br><span class="line">    setbuf(<span class="built_in">stderr</span>, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">100</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">2</span>;i++)&#123;</span><br><span class="line">        <span class="built_in">read</span>(<span class="number">0</span>, buf, <span class="number">0x200</span>);</span><br><span class="line">        <span class="built_in">puts</span>(buf);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    init();</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Hello Hacker!"</span>);</span><br><span class="line">    vuln();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -599,7 +599,7 @@ ret    == pop eip #弹出栈顶数据给eip寄存器</p>
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://ld1ng.com/2020/07/01/canary/" title="学习canary&amp;&amp;栈迁移">http://ld1ng.com/2020/07/01/canary/</a>
+      <a href="http://ld1ng.github.io/2020/07/01/canary/" title="学习canary&amp;&amp;栈迁移">http://ld1ng.github.io/2020/07/01/canary/</a>
     </li>
     
     <li class="post-copyright-license">

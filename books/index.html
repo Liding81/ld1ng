@@ -21,7 +21,7 @@
   <meta name="description" content="Books are never out of date.         .hexo-douban-tabs {     margin-bottom: 15px;     margin-top: 15px; }  .hexo-douban-tab {     padding: 5px; }  .hexo-douban-active {     backgr">
 <meta property="og:type" content="website">
 <meta property="og:title" content="This is my book title">
-<meta property="og:url" content="http://ld1ng.com/books/index.html">
+<meta property="og:url" content="http://ld1ng.github.io/books/index.html">
 <meta property="og:site_name" content="Ld1ng">
 <meta property="og:description" content="Books are never out of date.         .hexo-douban-tabs {     margin-bottom: 15px;     margin-top: 15px; }  .hexo-douban-tab {     padding: 5px; }  .hexo-douban-active {     backgr">
 <meta property="og:locale" content="en_US">
@@ -41,7 +41,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img9.doubanio.com/view/subject/s/public/s27279654.jpg">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://ld1ng.com/books/index.html">
+  <link rel="canonical" href="http://ld1ng.github.io/books/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Ld1ng" type="application/atom+xml">
   
@@ -431,7 +431,7 @@
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
 	<a href="/books/index.html" class="article-date">
-	  <time datetime="2021-08-27T13:32:06.277Z" itemprop="datePublished">2021-08-27</time>
+	  <time datetime="2021-08-27T13:39:04.021Z" itemprop="datePublished">2021-08-27</time>
 	</a>
 </span>
         
@@ -1105,5 +1105,20 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
  <!-- 页面点击礼花效果 -->
 <script type="text/javascript" src="/js/firework.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>
